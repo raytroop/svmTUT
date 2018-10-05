@@ -117,7 +117,9 @@ class MySMO(BaseEstimator):
         self.intercept_ = np.array([b])
         w = np.sum(alphas[:, None] * y[:, None] * X, axis=0).reshape(-1, 1)
         self.coef_ = np.array([w])
-        support_vectors_idx = (y[:, None] * (X.dot(w) + b) < 1).ravel()
+        # support vector definiton
+        # support_vectors_idx = (y[:, None] * (X.dot(w) + b) < 1).ravel()
+        support_vectors_idx = (alphas > 0).ravel()
         self.support_vectors_ = X[support_vectors_idx]
         return self
 
@@ -137,19 +139,29 @@ X = np.array([
 ])
 y = np.array([0, 0, 1, 1])
 
-svm_clf = MySMO(C=1e8)
+C = 1e8
+svm_clf = MySMO(C=C)
 svm_clf.fit(X, y)
 
 yr = y.ravel()
 plt.figure(figsize=(12, 3.2))
+plt.subplot(121)
 plt.plot(X[:, 0][yr == 1], X[:, 1][yr == 1], "g^", label="p")
 plt.plot(X[:, 0][yr == 0], X[:, 1][yr == 0], "bs", label="n")
 plot_svc_decision_boundary(svm_clf, 0, 3)
 plt.xlabel("x0", fontsize=14)
 plt.ylabel("x1", fontsize=14)
 plt.title("MySMO", fontsize=14)
-plt.show()
 
+svm_clf2 = SVC(kernel="linear", C=C)
+svm_clf2.fit(X, y)
+plt.subplot(122)
+plt.plot(X[:, 0][yr == 1], X[:, 1][yr == 1], "g^")
+plt.plot(X[:, 0][yr == 0], X[:, 1][yr == 0], "bs")
+plot_svc_decision_boundary(svm_clf2, 0, 3)
+plt.xlabel("x0", fontsize=14)
+plt.title("SVC", fontsize=14)
+plt.show()
 
 ### Simplified SMO can NOT handle large datasets and ensure that the algorithm converges #########
 ### full SMO algorithm needed
